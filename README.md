@@ -18,54 +18,54 @@ Basically, it behaves like the [split filter](https://www.elastic.co/guide/en/lo
 
 ### Examples
   
-Input event: 
-{
-	"host" => "machine4711"
-	"services" => ["elasticsearch","logstash","collectd"]
-	"ip" => "10.1.2.3"
-}
+	Input event: 
+	{
+		"host" => "machine4711"
+		"services" => ["elasticsearch","logstash","collectd"]
+		"ip" => "10.1.2.3"
+	}
 
 Output events:
 
-{
-	"host" => "machine4711"
-	"services" => "elasticsearch"
-	"ip" => "10.1.2.3"
-}
-{
-	"host" => "machine4711"
-	"services" => "logstash"
-	"ip" => "10.1.2.3"
-}
-{
-	"host" => "machine4711"
-	"services" => "collectd"
-	"ip" => "10.1.2.3"
-}
+	{
+		"host" => "machine4711"
+		"services" => "elasticsearch"
+		"ip" => "10.1.2.3"
+	}
+	{
+		"host" => "machine4711"
+		"services" => "logstash"
+		"ip" => "10.1.2.3"
+	}
+	{
+		"host" => "machine4711"
+		"services" => "collectd"
+		"ip" => "10.1.2.3"
+	}
 
 If the field, upon which the event is to be splitted, contains an array of key=>value nature, then those keys will be used in the new events:
 
 Input event: 
-{
-	"host" => "machine4711"
-	"attributes" => {
-					"ram" => "32g",
-					"cores" => 8
-					}
-	"ip" => "10.1.2.3"
-}
+	{
+		"host" => "machine4711"
+		"attributes" => {
+						"ram" => "32g",
+						"cores" => 8
+						}
+		"ip" => "10.1.2.3"
+	}
 
 Output events:
-{
-	"host" => "machine4711"
-	"ram" => "32g"
-	"ip" => "10.1.2.3"
-}
-{
-	"host" => "machine4711"
-	"cores" => 8
-	"ip" => "10.1.2.3"
-}
+	{
+		"host" => "machine4711"
+		"ram" => "32g"
+		"ip" => "10.1.2.3"
+	}
+	{
+		"host" => "machine4711"
+		"cores" => 8
+		"ip" => "10.1.2.3"
+	}
 
 ## Configuration
 
