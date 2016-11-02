@@ -11,6 +11,10 @@ You can download the plugin from [rubygems](https://rubygems.org/gems/logstash-f
 
 	bin/plugin install logstash-filter-denormalize-$VERSION.gem
 
+## Versions and compatibility
+
+Versions below 0.1.2 are compatible with logstash 2.x. Version 0.1.2 and later are compatible with logstash 5.
+
 ## Purpose
 
 This filter will denormalize an event with a field of n values in an array into n differents events, which are the same except for the values in the array field. Each event will contain one of the array values in that field.  
