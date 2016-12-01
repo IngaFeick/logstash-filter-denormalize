@@ -43,7 +43,7 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
         @logger.debug("Not iterable: field " + @source + " with value " + input.to_s)
       end
       if @delete_original
-        event.cancel # TODO why is this here and not outside the loop?
+        event.cancel
       end 
     else
        @logger.debug("Nil: field " + @source)
