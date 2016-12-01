@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
+require "logstash/util/decorators"
 
 # TODO docu
 class LogStash::Filters::Denormalize < LogStash::Filters::Base
@@ -29,33 +30,34 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
       if input.is_a?(::Hash) # if it's a hash then let's take the keys from the original data
         input.each do |key, value|
           target = (!@target.nil? && !@target.empty?) ? @target : key
-          event_split = event.clone
-          event_split.set(target, value)
-          filter_matched(event_split) 
-          yield event_split
-          if @delete_original
-            event.cancel # TODO why is this here and not outside the loop?
-          end
+          e = create_child_event(event, target, value)
+          yield e
         end # do
       elsif (input.is_a? Enumerable)
         input.each do |value|
-          # magic(event, @target, value)
-          event_split = event.clone
-          event_split.set(@list_target, value)
-          filter_matched(event_split)
-          yield event_split
-          if @delete_original
-            event.cancel # TODO why is this here and not outside the loop?
-          end
-        end # do    
+          e = create_child_event(event, @list_target, value)
+          yield e
+        end # do 
+          
       else
         @logger.debug("Not iterable: field " + @source + " with value " + input.to_s)
       end
+      if @delete_original
+        event.cancel # TODO why is this here and not outside the loop?
+      end 
     else
        @logger.debug("Nil: field " + @source)
     end # if input.nil? 
   end # def filter  
 
+  private
+  def create_child_event(event, target, value)
+    event_split = event.clone
+    event_split.set(target, value)
+    LogStash::Util::Decorators.add_tags(["denormalized"],event,"filters/#{self.class.name}")
+    filter_matched(event) 
+    event_split
+  end
 
 end # class LogStash::Filters::List2fields
 
