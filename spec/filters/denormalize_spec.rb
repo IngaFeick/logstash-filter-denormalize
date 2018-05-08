@@ -44,6 +44,28 @@ describe LogStash::Filters::Denormalize do
     end
   end
 
+
+  describe "list without target key, add position" do
+     config <<-CONFIG
+      filter {
+        denormalize {
+          source => "my_array"
+          add_position => true    
+        }
+      }
+    CONFIG
+
+    sample("my_array" => ["a", "b", "c"]) do    
+      insist { subject[0].get("my_array") } == "a"
+      insist { subject[1].get("my_array") } == "b"
+      insist { subject[2].get("my_array") } == "c" 
+      insist { subject[0].get("meta_position") } == 0
+      insist { subject[1].get("meta_position") } == 1
+      insist { subject[2].get("meta_position") } == 2
+      insist { subject.length } == 3
+    end
+  end
+
   describe "list with target key" do
      config <<-CONFIG
       filter {
@@ -110,7 +132,24 @@ describe LogStash::Filters::Denormalize do
   end
 
 
+  describe "dictionary without target key, add position" do
+     config <<-CONFIG
+      filter {
+        denormalize {
+          source => "my_dict"
+          add_position => true    
+        }
+      }
+    CONFIG
 
+    sample("my_dict" => {"foo" => "bar", "cheese" => "bacon"}) do
+      insist { subject.length } == 2      
+      insist { subject[0].get("foo") } == "bar"
+      insist { subject[1].get("cheese") } == "bacon"
+      insist { subject[0].get("meta_position") } == 0
+      insist { subject[1].get("meta_position") } == 1
+    end
+  end
 
 
   context "when field is nil" do

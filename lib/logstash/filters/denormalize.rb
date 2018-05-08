@@ -56,7 +56,7 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
     event_split = event.clone
     event_split.set(target, value)
     if @add_position
-      @event_split.set('meta_position', index)
+      event_split.set('meta_position', index)
     end
     LogStash::Util::Decorators.add_tags([@add_child_tag],event_split,"filters/#{self.class.name}")
     filter_matched(event)
