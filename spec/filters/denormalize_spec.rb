@@ -50,6 +50,27 @@ describe LogStash::Filters::Denormalize do
       filter {
         denormalize {
           source => "my_array"
+          add_child_tag => "denormalized"
+        }
+      }
+    CONFIG
+
+    sample("my_array" => ["a", "b"]) do    
+      insist { subject[0].get("my_array") } == "a"
+      insist { subject[1].get("my_array") } == "b"
+  
+      insist { subject[0].get("tags") } == ["denormalized"]
+      insist { subject[1].get("tags") } == ["denormalized"]
+      insist { subject.length } == 2
+    end
+  end
+
+
+  describe "list without target key, add tag" do
+     config <<-CONFIG
+      filter {
+        denormalize {
+          source => "my_array"
           add_position => true    
         }
       }
@@ -65,6 +86,9 @@ describe LogStash::Filters::Denormalize do
       insist { subject.length } == 3
     end
   end
+
+
+
 
   describe "list with target key" do
      config <<-CONFIG

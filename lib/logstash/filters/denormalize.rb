@@ -18,7 +18,7 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
   config :delete_original, :validate => :boolean, :default => true
 
   # Tag to be added to the spawned event
-  config :add_child_tag, :validate => :string, :default => "denormalized" # TODO I think this is not needed anymore because logstash has a mechanism for that already? or is it a different functionality? If so: document why
+  config :add_child_tag, :validate => :string, :required => false
 
   # Add the list position of the denormalized list entry to the event. Helpful for debugging or id generation. Adds the field 'meta_position'
   config :add_position, :validate => :boolean, :default => false
@@ -58,7 +58,10 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
     if @add_position
       event_split.set('meta_position', index)
     end
-    LogStash::Util::Decorators.add_tags([@add_child_tag],event_split,"filters/#{self.class.name}")
+
+    if !@add_child_tag.nil? and (event_split.get("tags").nil? or ! event_split.get("tags").include? @add_child_tag )# prevent duplicates
+      LogStash::Util::Decorators.add_tags([@add_child_tag],event_split,"filters/#{self.class.name}")
+    end
     filter_matched(event)
     event_split
   end
