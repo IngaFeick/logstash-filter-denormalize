@@ -18,10 +18,10 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
   config :delete_original, :validate => :boolean, :default => true
 
   # Tag to be added to the spawned event
-  config :add_child_tag, :validate => :string, :default => "denormalized"
+  config :add_child_tag, :validate => :string, :default => "denormalized" # TODO I think this is not needed anymore because logstash has a mechanism for that already? or is it a different functionality? If so: document why
 
-  # Mark one of the spawned events 
-  config :mark_first_child, :validate => :boolean, :default => false, :required => false
+  # Add the list position of the denormalized list entry to the event. Helpful for debugging or id generation. Adds the field 'meta_position'
+  config :add_position, :validate => :boolean, :default => false
 
   public
   def register
@@ -32,34 +32,33 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
   def filter(event)
     input = event.get(@source)
     if !input.nil?
-      c = 0
-      if input.is_a?(::Hash) # if it's a hash then let's take the keys from the original data
-        input.each do |key, value|
+      case input
+      when ::Hash # if it's a hash then let's take the keys from the original data
+        input.each_with_index do |key, value, index| # TODO write tests for both iterations
           target = (!@target.nil? && !@target.empty?) ? @target : key
-          yield create_child_event(event, target, value, c += 1)          
+          yield create_child_event(event, target, value, index)          
         end # do
-      elsif (input.is_a? Enumerable)
-        input.each do |value|
-          yield create_child_event(event, @list_target, value, c += 1)
+      when Enumerable
+        input.each_with_index do |value, index|
+          yield create_child_event(event, @list_target, value, index)
         end # do 
       else
         @logger.debug("Not iterable: field " + @source + " with value " + input.to_s)
       end
       event.cancel if @delete_original
-      
     else
        @logger.debug("Nil: field " + @source)
     end # if input.nil? 
   end # def filter  
 
   private
-  def create_child_event(event, target, value, counter)
+  def create_child_event(event, target, value, index)
     event_split = event.clone
     event_split.set(target, value)
-    LogStash::Util::Decorators.add_tags([@add_child_tag],event_split,"filters/#{self.class.name}")
-    if counter == 1 && @mark_first_child
-      event_split.set("is_master", true)
+    if @add_position
+      @event_split.set('meta_position', index)
     end
+    LogStash::Util::Decorators.add_tags([@add_child_tag],event_split,"filters/#{self.class.name}")
     filter_matched(event)
     event_split
   end
