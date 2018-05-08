@@ -75,6 +75,9 @@ Output events:
 
 * source 	: name of the field by which to denormalize. For each entry in this field (which should have an array value) a new record will be created, containing all the other fields. 
 * target	: new key for the field by which you splitted the event. This is only effective if the splitted field didn't have keys on its own.
+* delete_original : destroy the original event and keep only the new child events (default).
+* add_child_tag : string to be added as a tag to only the child events but not the original event, in order to be able to tell them apart (if you don't delete the original)
+* add_position : add a field 'meta_position' to each child event which contains the number at which index position this event was spawned from the source list.
 
 
 ## Contributing
