@@ -34,7 +34,7 @@ class LogStash::Filters::Denormalize < LogStash::Filters::Base
     if !input.nil?
       case input
       when ::Hash # if it's a hash then let's take the keys from the original data
-        input.each_with_index do |key, value, index| # TODO write tests for both iterations
+        input.each_with_index do | (key, value), index| # TODO write tests for both iterations
           target = (!@target.nil? && !@target.empty?) ? @target : key
           yield create_child_event(event, target, value, index)          
         end # do

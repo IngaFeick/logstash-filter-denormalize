@@ -69,7 +69,7 @@ describe LogStash::Filters::Denormalize do
     end    
   end
 
-=begin
+
   describe "dictionary without target key" do
     config <<-CONFIG
       filter {
@@ -89,25 +89,7 @@ describe LogStash::Filters::Denormalize do
     end
   end
 
-
-    # todo use case : is a list and has the target name specified 
-    # 2: is a list but no target name specified. 
-
-   describe "field is a dictionary" do
-    config <<-CONFIG
-      filter {
-        denormalize {
-          source => "my_dict"
-        }
-      }
-    CONFIG
-
-    sample {"foo": "bar", "cheese": "bacon"} do
-      insist { subject.get("tags") }.nil?
-      # insist { subject.get("logsource") } == "evita" TODO extend this
-    end
-end
-
+=begin
 
 
 
